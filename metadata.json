@@ -1,0 +1,6 @@
+{
+  "name": "CRAFTORA",
+  "description": "Turn ideas into stories worth sharing. A professional creative project and portfolio community to document the work behind what you create.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

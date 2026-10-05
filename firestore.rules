@@ -1,0 +1,162 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Profiles
+    match /profiles/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId)
+        && incoming().userId == userId
+        && incoming().displayName is string && incoming().displayName.size() > 0 && incoming().displayName.size() <= 100
+        && incoming().username is string && incoming().username.size() > 0 && incoming().username.size() <= 50;
+      allow update: if isOwner(userId)
+        && incoming().userId == existing().userId
+        && incoming().displayName is string && incoming().displayName.size() > 0 && incoming().displayName.size() <= 100
+        && incoming().username is string && incoming().username.size() > 0 && incoming().username.size() <= 50;
+      allow delete: if isOwner(userId);
+    }
+
+    // Private user information
+    match /users/{userId}/private/info {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Project Stories
+    match /project_stories/{storyId} {
+      // Anyone can read public stories, or owner/collaborators can read unlisted/private
+      allow get: if resource.data.visibility == 'PUBLIC' 
+        || resource.data.visibility == 'UNLISTED'
+        || (isSignedIn() && (resource.data.ownerId == request.auth.uid || request.auth.uid in resource.data.collaboratorIds));
+      
+      allow list: if resource.data.visibility == 'PUBLIC'
+        || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && incoming().ownerId == request.auth.uid
+        && incoming().title is string && incoming().title.size() > 0 && incoming().title.size() <= 200
+        && incoming().shortSummary is string && incoming().shortSummary.size() <= 500
+        && incoming().category is string && incoming().category.size() <= 50
+        && incoming().status is string;
+
+      allow update: if isSignedIn()
+        && (
+          // Owner full update
+          (incoming().ownerId == existing().ownerId && existing().ownerId == request.auth.uid)
+          // Or appreciation / comments / saves count increment (or collaborator update)
+          || (incoming().diff(existing()).affectedKeys().hasOnly(['appreciationsCount', 'savesCount', 'commentsCount']))
+          || (incoming().diff(existing()).affectedKeys().hasOnly(['collaboratorIds', 'collaborators']) && existing().ownerId == request.auth.uid)
+        );
+
+      allow delete: if isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // Project Milestones
+    match /project_milestones/{milestoneId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && incoming().ownerId == request.auth.uid
+        && incoming().title is string && incoming().title.size() > 0 && incoming().title.size() <= 200
+        && incoming().stage is string;
+      allow update: if isSignedIn() && existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId;
+      allow delete: if isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // Journal Entries
+    match /journal_entries/{entryId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && incoming().ownerId == request.auth.uid
+        && incoming().title is string && incoming().title.size() > 0 && incoming().title.size() <= 250
+        && incoming().content is string && incoming().content.size() > 0 && incoming().content.size() <= 20000
+        && incoming().type is string;
+      allow update: if isSignedIn()
+        && (
+          (existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId)
+          || (incoming().diff(existing()).affectedKeys().hasOnly(['appreciationsCount', 'savesCount', 'commentsCount']))
+        );
+      allow delete: if isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    // Comments
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && incoming().authorId == request.auth.uid
+        && incoming().content is string && incoming().content.size() > 0 && incoming().content.size() <= 3000;
+      allow update: if isSignedIn() && existing().authorId == request.auth.uid && incoming().authorId == existing().authorId;
+      allow delete: if isSignedIn() && existing().authorId == request.auth.uid;
+    }
+
+    // Appreciations
+    match /appreciations/{appreciationId} {
+      allow read: if true;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    // Saves
+    match /saves/{saveId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    // Follows
+    match /follows/{followId} {
+      allow read: if true;
+      allow create: if isSignedIn() && incoming().followerId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().followerId == request.auth.uid;
+    }
+
+    // Collaboration Requests
+    match /collaboration_requests/{requestId} {
+      // Applicant or project owner can read
+      allow read: if isSignedIn() && (resource.data.applicantId == request.auth.uid || resource.data.projectOwnerId == request.auth.uid);
+      allow create: if isSignedIn() && incoming().applicantId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        // Project owner can update status (accept/reject)
+        (existing().projectOwnerId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+        // Or applicant can withdraw
+        || (existing().applicantId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+      );
+      allow delete: if isSignedIn() && (existing().applicantId == request.auth.uid || existing().projectOwnerId == request.auth.uid);
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      // Recipient can read their notifications
+      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      // Any signed-in user can create a notification for another user
+      allow create: if isSignedIn() && incoming().actorId == request.auth.uid;
+      // Recipient can update read status
+      allow update: if isSignedIn() && existing().recipientId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['read']);
+      allow delete: if isSignedIn() && existing().recipientId == request.auth.uid;
+    }
+  }
+}

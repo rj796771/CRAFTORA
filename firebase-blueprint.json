@@ -1,0 +1,293 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public creative profile of a CRAFTORA creator",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "username": { "type": "string", "maxLength": 50, "pattern": "^[a-zA-Z0-9_]+$" },
+        "identityStatement": { "type": "string", "maxLength": 180 },
+        "bio": { "type": "string", "maxLength": 2000 },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "location": { "type": "string", "maxLength": 100 },
+        "websiteUrl": { "type": "string", "maxLength": 300 },
+        "githubUrl": { "type": "string", "maxLength": 300 },
+        "portfolioUrl": { "type": "string", "maxLength": 300 },
+        "creatorType": {
+          "type": "string",
+          "enum": ["Developer", "Designer", "Researcher", "Founder", "Engineer", "Creator", "Student"]
+        },
+        "currently": {
+          "type": "object",
+          "description": "Creator's current focuses and exploratory direction"
+        },
+        "createdAt": { "type": "string", "maxLength": 40 },
+        "updatedAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["userId", "displayName", "username", "createdAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Private contact info accessible strictly by the user itself",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "ProjectStory": {
+      "title": "ProjectStory",
+      "description": "Comprehensive creative project story detailing process, problem, and learnings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "slug": { "type": "string", "maxLength": 150 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "ownerName": { "type": "string", "maxLength": 100 },
+        "ownerUsername": { "type": "string", "maxLength": 50 },
+        "ownerAvatar": { "type": "string", "maxLength": 500 },
+        "title": { "type": "string", "maxLength": 200 },
+        "shortSummary": { "type": "string", "maxLength": 350 },
+        "category": { "type": "string", "maxLength": 50 },
+        "status": {
+          "type": "string",
+          "enum": ["CONCEPT", "EXPLORING", "IN DEVELOPMENT", "TESTING", "RELEASED", "PAUSED", "ARCHIVED"]
+        },
+        "coverImage": { "type": "string", "maxLength": 500 },
+        "overview": { "type": "string", "maxLength": 8000 },
+        "problem": { "type": "string", "maxLength": 5000 },
+        "approach": { "type": "string", "maxLength": 5000 },
+        "process": { "type": "string", "maxLength": 8000 },
+        "outcome": { "type": "string", "maxLength": 5000 },
+        "lessonsLearned": { "type": "array" },
+        "futureImprovements": { "type": "string", "maxLength": 3000 },
+        "tools": { "type": "array" },
+        "liveUrl": { "type": "string", "maxLength": 300 },
+        "repoUrl": { "type": "string", "maxLength": 300 },
+        "docsUrl": { "type": "string", "maxLength": 300 },
+        "collaboratorIds": { "type": "array" },
+        "collaborators": { "type": "array" },
+        "lookingForCollaborators": { "type": "boolean" },
+        "collaborationRole": { "type": "string", "maxLength": 200 },
+        "collaborationDuration": { "type": "string", "maxLength": 100 },
+        "collaborationSkills": { "type": "array" },
+        "appreciationsCount": { "type": "number" },
+        "savesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "visibility": { "type": "string", "enum": ["PUBLIC", "UNLISTED", "PRIVATE"] },
+        "isFeatured": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 40 },
+        "updatedAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "ownerId", "title", "shortSummary", "category", "status", "createdAt"]
+    },
+    "ProjectMilestone": {
+      "title": "ProjectMilestone",
+      "description": "Visual milestone along the project journey",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "stage": {
+          "type": "string",
+          "enum": ["IDEA", "RESEARCH", "FIRST PROTOTYPE", "ITERATION", "TESTING", "RELEASE"]
+        },
+        "title": { "type": "string", "maxLength": 200 },
+        "date": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "learnings": { "type": "string", "maxLength": 2000 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "externalUrl": { "type": "string", "maxLength": 300 },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "projectId", "ownerId", "stage", "title", "description", "createdAt"]
+    },
+    "JournalEntry": {
+      "title": "JournalEntry",
+      "description": "Reflections, lessons, experiments, and questions written by creators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "ownerName": { "type": "string", "maxLength": 100 },
+        "ownerUsername": { "type": "string", "maxLength": 50 },
+        "ownerAvatar": { "type": "string", "maxLength": 500 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "projectTitle": { "type": "string", "maxLength": 200 },
+        "projectSlug": { "type": "string", "maxLength": 150 },
+        "type": {
+          "type": "string",
+          "enum": ["Reflection", "Lesson", "Case Study", "Question", "Experiment", "Announcement"]
+        },
+        "title": { "type": "string", "maxLength": 250 },
+        "content": { "type": "string", "maxLength": 10000 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "tags": { "type": "array" },
+        "appreciationsCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "savesCount": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 40 },
+        "updatedAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "ownerId", "type", "title", "content", "createdAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "Discussion item on a Project Story or Journal Entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "targetType": { "type": "string", "enum": ["project", "journal"] },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "targetTitle": { "type": "string", "maxLength": 250 },
+        "authorId": { "type": "string", "maxLength": 128 },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "authorUsername": { "type": "string", "maxLength": 50 },
+        "authorAvatar": { "type": "string", "maxLength": 500 },
+        "content": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "targetType", "targetId", "authorId", "authorName", "content", "createdAt"]
+    },
+    "Appreciation": {
+      "title": "Appreciation",
+      "description": "A sincere reaction/appreciation on a creative piece",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "targetType": { "type": "string", "enum": ["project", "journal"] },
+        "createdAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "userId", "targetId", "targetType", "createdAt"]
+    },
+    "Save": {
+      "title": "Save",
+      "description": "Bookmark of a project, journal, or creator",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "targetType": { "type": "string", "enum": ["project", "journal", "creator"] },
+        "itemData": { "type": "object" },
+        "createdAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "userId", "targetId", "targetType", "createdAt"]
+    },
+    "Follow": {
+      "title": "Follow",
+      "description": "Follow connection between two creators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "followerId": { "type": "string", "maxLength": 128 },
+        "followedId": { "type": "string", "maxLength": 128 },
+        "followerName": { "type": "string", "maxLength": 100 },
+        "followerUsername": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "followerId", "followedId", "createdAt"]
+    },
+    "CollaborationRequest": {
+      "title": "CollaborationRequest",
+      "description": "Formal proposal to join a creative project story",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "projectId": { "type": "string", "maxLength": 128 },
+        "projectTitle": { "type": "string", "maxLength": 200 },
+        "projectSlug": { "type": "string", "maxLength": 150 },
+        "projectOwnerId": { "type": "string", "maxLength": 128 },
+        "applicantId": { "type": "string", "maxLength": 128 },
+        "applicantName": { "type": "string", "maxLength": 100 },
+        "applicantUsername": { "type": "string", "maxLength": 50 },
+        "applicantAvatar": { "type": "string", "maxLength": 500 },
+        "roleWanted": { "type": "string", "maxLength": 100 },
+        "pitch": { "type": "string", "maxLength": 3000 },
+        "portfolioLinks": { "type": "string", "maxLength": 500 },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "ACCEPTED", "REJECTED", "WITHDRAWN"]
+        },
+        "createdAt": { "type": "string", "maxLength": 40 },
+        "updatedAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "projectId", "projectOwnerId", "applicantId", "roleWanted", "pitch", "status", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Action notifications for creators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "recipientId": { "type": "string", "maxLength": 128 },
+        "actorId": { "type": "string", "maxLength": 128 },
+        "actorName": { "type": "string", "maxLength": 100 },
+        "actorAvatar": { "type": "string", "maxLength": 500 },
+        "type": {
+          "type": "string",
+          "enum": ["appreciation", "comment", "follow", "collaboration_request", "collaboration_accepted", "milestone_added"]
+        },
+        "title": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 500 },
+        "targetUrl": { "type": "string", "maxLength": 300 },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 40 }
+      },
+      "required": ["id", "recipientId", "actorId", "type", "title", "message", "read", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/profiles/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Public creative profile of a user"
+    },
+    "/users/{userId}/private/info": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Private contact info for the user"
+    },
+    "/project_stories/{storyId}": {
+      "schema": { "$ref": "#/entities/ProjectStory" },
+      "description": "Comprehensive creative project stories"
+    },
+    "/project_milestones/{milestoneId}": {
+      "schema": { "$ref": "#/entities/ProjectMilestone" },
+      "description": "Milestones and progress logs for project journeys"
+    },
+    "/journal_entries/{entryId}": {
+      "schema": { "$ref": "#/entities/JournalEntry" },
+      "description": "Creative reflections and lessons"
+    },
+    "/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "Discussions on project stories and journal posts"
+    },
+    "/appreciations/{appreciationId}": {
+      "schema": { "$ref": "#/entities/Appreciation" },
+      "description": "Sincere appreciation reactions"
+    },
+    "/saves/{saveId}": {
+      "schema": { "$ref": "#/entities/Save" },
+      "description": "Saved projects, journals, and creator bookmarks"
+    },
+    "/follows/{followId}": {
+      "schema": { "$ref": "#/entities/Follow" },
+      "description": "Creator follow relationships"
+    },
+    "/collaboration_requests/{requestId}": {
+      "schema": { "$ref": "#/entities/CollaborationRequest" },
+      "description": "Proposals to collaborate on project stories"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Activity notifications for users"
+    }
+  }
+}
